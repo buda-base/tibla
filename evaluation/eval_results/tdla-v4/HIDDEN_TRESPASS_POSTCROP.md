@@ -96,20 +96,34 @@ Interpretation:
 At the **current (unchanged) operating confidences** — i.e. the metric change
 only. Rounded to 3 dp as in the model cards:
 
-| model | h/f HT (old → new) | footnote HT (old → new) |
+**(a) Metric change only** — post-crop HT at the *current* paper confidences
+(these confidences were selected on the test set):
+
+| model | h/f HT (old → post-crop) | footnote HT (old → post-crop) |
 |---|---|---|
 | TiBLA-RTDETR | 0.008 → **0.009** | 0.037 → **0.043** |
 | TiBLA-PP-DocLayout-L | 0.003 → **0.004** | 0.037 → **0.037** |
 | TiBLA-RFDETR | 0.020 → **0.021** | 0.216 → **0.169** |
 
-(Full 13-system new values are in the table above / `hidden_trespass_postcrop.json`.)
+**(b) Final paper values** — post-crop HT at the **validation-selected**
+confidence (no test-set tuning; row 4 of the decomposition below):
 
-> **Caveat / final value.** Per the operating-point protocol, the *final* paper
-> value is the post-crop HT at the **validation-selected** confidence. These
-> replacements are at the current paper confidences (metric change only). If the
-> validation-selected confidence differs, the final footnote/header-footer HT may
-> shift; see the blocker below. I have **not** retuned any threshold and have not
-> invented val-selected values.
+| model | val conf | h/f HT | footnote HT | frozen test mean F1 |
+|---|---:|---:|---:|---:|
+| TiBLA-RTDETR | 0.64 | **0.009** | **0.043** | 0.952 |
+| TiBLA-PP-DocLayout-L | 0.61 | **0.004** | **0.037** | 0.955 |
+| TiBLA-RFDETR | 0.47 | **0.021** | **0.178** | 0.921 |
+
+(Full 13-system values are in `hidden_trespass_postcrop.json` [metric change] and
+`val_operating_point.json` [rows 1–4 + val selection].)
+
+> **Note on the frozen test F1.** The validation-selected confidence gives a
+> leak-free test mean F1 (0.952 / 0.955 / 0.921) slightly below the
+> test-selected headline (0.959 / 0.958 / 0.926 in the F1 tables), as expected:
+> the headline picks the confidence *on the test set*, this picks it on val.
+> The HT values are robust to this: h/f is unchanged, footnote moves only for
+> RF-DETR (0.169 → 0.178, because its higher val confidence keeps fewer footnote
+> predictions to subtract).
 
 ## Ranking changes
 
@@ -121,38 +135,60 @@ only. Rounded to 3 dp as in the model cards:
 - Off-the-shelf / commercial: no ordering flips; DocStructBench and off-the-shelf
   heron improve most on footnote (they emit footnote boxes that get subtracted).
 
-## Operating-point protocol — decomposition and the validation blocker
+## Operating-point protocol — validation-based selection (rows 1–4)
 
-The requested decomposition per system:
+Validation dumps for the 8 thresholdable detectors were generated on GPU (see
+Reproduce) at the same predict settings / conf floors as the test dumps, and the
+operating confidence was re-selected on the **validation** split only.
 
-1. **Existing HT @ old test-selected confidence** — delivered (`old HT` column).
-2. **Post-crop HT @ that same confidence** — delivered (`new HT` column). This is
-   the *metric-only* change.
-3. **Existing HT @ validation-selected confidence** — **blocked** (see below).
-4. **Post-crop HT @ validation-selected confidence** (the final paper value) —
-   **blocked**.
+**Selection rule (exact):** `val_conf = argmax_{c∈{0.00,…,0.99}}` of the
+canonical macro mean F1 = mean(F1 header-footer, text-area, footnote) on the 749
+val pages (greedy IoU≥0.5; text-area envelope built from predictions kept at ≥c;
+ties → lowest conf). `val_conf` is then **frozen** and applied to the 833 test
+pages. No test result is used to choose any threshold.
 
-**Blocker: no validation prediction dumps exist.** Only the validation *images*
-and *labels* are archived (`s3://bec.bdrc.io/models/hff-detection/datasets/
-tdlav4_tam2col/{images,labels}/val`, 749 pages). No system's predictions have
-been run on the val split, so I cannot (without generating them):
-- select a global confidence on val by max canonical macro mean F1,
-- report validation-selected confidence, val F1, or frozen-test F1,
-- produce per-class validation curves for deployment thresholds,
-- compute rows (3) and (4).
+Per-system decomposition (HT as area fraction; **row 4 is the final paper value**):
 
-I did **not** substitute test-selected confidences for these (that is exactly the
-test-leak the protocol forbids), and I did **not** invent any missing values.
+| system | old conf | val conf | (1) hf @old | (2) hf-crop @old | (3) hf @val | (4) hf-crop @val | (1) fn @old | (2) fn-crop @old | (3) fn @val | (4) fn-crop @val |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| RT-DETR-l (ours) | 0.74 | 0.64 | 0.008 | 0.009 | 0.008 | **0.009** | 0.037 | 0.043 | 0.037 | **0.043** |
+| RF-DETR-L (ours) | 0.26 | 0.47 | 0.020 | 0.021 | 0.020 | **0.021** | 0.216 | 0.169 | 0.226 | **0.178** |
+| Docling heron (ours) | 0.08 | 0.07 | 0.002 | 0.003 | 0.002 | **0.003** | 0.074 | 0.074 | 0.074 | **0.074** |
+| DocLayout-YOLO (ours) | 0.29 | 0.32 | 0.004 | 0.004 | 0.004 | **0.004** | 0.106 | 0.106 | 0.106 | **0.106** |
+| PP-DocLayout-L (ours) | 0.68 | 0.61 | 0.003 | 0.004 | 0.003 | **0.004** | 0.037 | 0.037 | 0.037 | **0.037** |
+| PP-DocLayout-L OTS | 0.30 | 0.31 | 0.178 | 0.189 | 0.176 | **0.187** | 0.277 | 0.281 | 0.277 | **0.281** |
+| Docling heron OTS | 0.58 | 0.67 | 0.078 | 0.100 | 0.085 | **0.091** | 0.090 | 0.056 | 0.090 | **0.055** |
+| DocLayout-YOLO DocStruct OTS | 0.08 | 0.13 | 0.100 | 0.112 | 0.114 | **0.124** | 0.241 | 0.166 | 0.207 | **0.132** |
+| Surya 2 † | 0.00 | 0.00 | 0.020 | 0.021 | 0.020 | **0.021** | 0.135 | 0.135 | 0.135 | **0.135** |
+| Chandra 2 † | 0.00 | 0.00 | 0.019 | 0.019 | 0.019 | **0.019** | 0.020 | 0.020 | 0.020 | **0.020** |
+| Azure DI † | 0.00 | 0.00 | 0.181 | 0.181 | 0.181 | **0.181** | 0.184 | 0.178 | 0.184 | **0.178** |
+| AWS Textract † | 0.00 | 0.00 | 0.160 | 0.160 | 0.160 | **0.160** | 0.644 | 0.642 | 0.644 | **0.642** |
+| Google DocAI † | 0.00 | 0.00 | 0.438 | 0.412 | 0.438 | **0.412** | 0.929 | 0.928 | 0.929 | **0.928** |
 
-**To unblock (needs a decision — GPU cost/time):** generate val dumps for the 8
-*thresholdable* detectors — the 5 fine-tunes (RT-DETR seed0, RF-DETR,
-PP-DocLayout-L, DocLayout-YOLO, Docling heron) + 3 off-the-shelf (PP-DocLayout-L,
-Docling heron, DocLayout-YOLO DocStructBench) — by running each checkpoint on the
-749 val pages in its own framework (Ultralytics / rfdetr / PaddleX / DocLayout-YOLO
-/ transformers), then re-select on val and freeze for test. The **commercial**
-systems (Azure, Google, Textract) and the **VLMs** (Surya, Chandra) currently
-have no usable per-box confidence for a sweep (operating conf 0.00), so per the
-protocol they **retain their fixed operating point** and need no val run.
+† **Fixed operating point** — commercial APIs and VLMs expose no usable per-box
+confidence for a sweep (operating conf 0.00). Per the protocol they retain their
+fixed point, so rows (3)/(4) equal rows (1)/(2). Validation predictions were
+therefore **not** generated for these five systems.
+
+Validation and frozen-test mean F1 for the thresholdable systems:
+
+| system | val conf | val mean F1 | frozen test mean F1 | (test-selected headline F1) |
+|---|---:|---:|---:|---:|
+| RT-DETR-l (ours) | 0.64 | 0.983 | 0.952 | 0.959 |
+| RF-DETR-L (ours) | 0.47 | 0.972 | 0.921 | 0.926 |
+| Docling heron (ours) | 0.07 | 0.961 | 0.925 | 0.925 |
+| DocLayout-YOLO (ours) | 0.32 | 0.943 | 0.897 | 0.897 |
+| PP-DocLayout-L (ours) | 0.61 | 0.982 | 0.955 | 0.958 |
+| PP-DocLayout-L OTS | 0.31 | 0.744 | 0.668 | 0.670 |
+| Docling heron OTS | 0.67 | 0.603 | 0.583 | 0.590 |
+| DocLayout-YOLO DocStruct OTS | 0.13 | 0.522 | 0.501 | 0.503 |
+
+The val-selected confidences track the test-selected ones closely (largest shift
+RF-DETR 0.26 → 0.47), confirming the paper's operating points were not
+test-overfit. Full per-class validation P/R/F1 curves (0.05-grid, for deployment
+threshold choices) are in `val_operating_point.json` (`val_curve` per system);
+these are reported for information only and were **not** used to pick any
+test-time threshold.
 
 ## Reproduce
 
@@ -171,11 +207,30 @@ protocol they **retain their fixed operating point** and need no val run.
 .venv_eval/bin/python evaluation/hidden_trespass_delta.py \
     --metrics evaluation/eval_results/tdla-v4/literature/metrics.json \
     --out     evaluation/eval_results/tdla-v4/literature/hidden_trespass_postcrop.json
+
+# 4. validation dumps (8 thresholdable detectors) — GPU, same predict settings
+#    /conf floors as the test dumps (rfdetr 0.01, others 0.05). Drivers:
+#    tmp/valinfer_boxA.sh (rtdetr seed0, rfdetr, heron ft+ots) and
+#    tmp/valinfer_boxP.sh (pp ft+ots, doclayout ft+ots). Dumps land at
+#    s3://bec.bdrc.io/models/hff-detection/tdlav4/eval-val/<system>/labels.
+
+# 5. validation-based operating-point selection + rows 1–4
+.venv_eval/bin/python evaluation/val_operating_point.py \
+    --val-gt   dataset_tdlav4_tam2col/labels/val  --val-img  dataset_tdlav4_tam2col/images/val \
+    --test-gt  dataset_tdlav4_tam2col/labels/test --test-img dataset_tdlav4_tam2col/images/test \
+    --val-pred-root  <local>/tdlav4_val/preds  --test-pred-root <local>/tdlav4_lit/preds \
+    --test-metrics   evaluation/eval_results/tdla-v4/literature/metrics.json \
+    --out-dir        evaluation/eval_results/tdla-v4/literature
 ```
 
 Artifact revisions:
-- Dataset: HF tag **v4** (`BDRC/TiBLAD`), 833-page test; GT = leak-free series split.
+- Dataset: HF tag **v4** (`BDRC/TiBLAD`), 833-page test / 749-page val; GT =
+  leak-free series split.
 - Prediction dumps (test): `s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/…`
-  and `.../off-the-shelf-eval-tdlav4/…`, mirrored locally to
-  `/home/eroux/tmp/tdlav4_lit/preds/<system>/labels`. Deterministic; nothing
-  re-inferred for this metric change.
+  and `.../off-the-shelf-eval-tdlav4/…`, mirrored to `/home/eroux/tmp/tdlav4_lit/
+  preds/<system>/labels`. Deterministic; nothing re-inferred for the metric change.
+- Prediction dumps (val): `s3://bec.bdrc.io/models/hff-detection/tdlav4/eval-val/
+  <system>/labels` (8 thresholdable detectors), generated on two A10G boxes with
+  the checkpoints in `.../tdlav4/weights/` (RT-DETR seed0 =
+  `seed-variance-tdlav4/seed0/best.pt`). Commercial/VLM systems have no val dumps
+  (fixed operating point).
