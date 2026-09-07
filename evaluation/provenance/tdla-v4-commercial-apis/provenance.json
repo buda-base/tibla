@@ -1,0 +1,162 @@
+{
+  "artifact": "TiBLA v4 commercial-API evaluation provenance manifest",
+  "schema_version": "1.0",
+  "generated": "2026-09-07",
+  "supports": "TiBLA paper (2026-tibetan-book-layout)",
+  "status_statement": "Auditable and deterministically re-scorable from archived derived detections. Not fully reproducible: raw API responses were not retained, so native label mappings and provider metadata cannot be re-derived without re-calling the services.",
+  "repository": "github.com/buda-base/tibla",
+  "prediction_script_commit": "ce3a77e",
+  "raw_api_responses_retained": false,
+  "dataset": {
+    "name": "BDRC/TiBLAD",
+    "hub_tag": "v4",
+    "split": "test",
+    "split_description": "series-level, leakage-free (work-ids disjoint across train/val/test)",
+    "pages": 833,
+    "images_mime": "image/jpeg (JFIF baseline, 3-channel)"
+  },
+  "run": {
+    "date": "2026-08-29",
+    "window_utc": "~11:38-12:04 UTC (~13:38-14:04 CEST)",
+    "timestamp_source": "prediction run logs + S3 object LastModified 2026-08-29 14:04-14:05",
+    "runtime": "Python 3.11.2",
+    "sdk_versions_best_effort": {
+      "note": "Not lock-pinned at run time; values are those installed in the run virtualenv and are consistent with the run.",
+      "boto3": "1.37.24",
+      "botocore": "1.37.38",
+      "requests": "2.32.3",
+      "urllib3": "2.3.0",
+      "google-cloud-documentai": "3.15.0",
+      "google-api-core": "2.29.0",
+      "pillow": "12.1.1"
+    },
+    "batching": "ThreadPoolExecutor, 8 workers, one page per synchronous request",
+    "pages_submitted": 833,
+    "pages_analyzed": 833,
+    "pages_failed": 0,
+    "pages_skipped": 0,
+    "pages_duplicated": 0
+  },
+  "scoring": {
+    "driver": "evaluation/run_v4_lit_eval.py",
+    "metric_code": "evaluation/literature_metrics.py",
+    "canonical_fold": "classes {0 header, 3 footer} -> header-footer (matched individually); class 1 -> one text-area envelope per page (max conf); class 2 -> footnote; matches at IoU>=0.5",
+    "note": "iter_pages() enumerates the 833 ground-truth stems and reads <pred_dir>/<stem>.txt; a missing prediction file would be scored as an empty prediction. All 833 stems verified present in every provider dump (0 missing, 0 extra)."
+  },
+  "services": [
+    {
+      "id": "azure_di",
+      "provider": "Microsoft Azure",
+      "product": "Azure AI Document Intelligence",
+      "model": "prebuilt-layout",
+      "operation": "POST {endpoint}/documentintelligence/documentModels/prebuilt-layout:analyze (async, polled via Operation-Location)",
+      "api_version": "2024-11-30",
+      "region": "UNKNOWN (resource endpoint held in an environment variable, not recorded)",
+      "model_mutability": "api-version pins the API contract; the underlying model may be updated by the provider under the same api-version. Served model version UNKNOWN and mutable.",
+      "documentation_url": "https://learn.microsoft.com/azure/ai-services/document-intelligence/prebuilt/layout",
+      "input_handling": "raw JPEG bytes, Content-Type application/octet-stream; no resize/rotate/preprocess",
+      "native_to_tiblad_map": {
+        "pageHeader": "header",
+        "pageFooter": "footer",
+        "pageNumber": "footer",
+        "footnote": "footnote",
+        "other (title, sectionHeading, None, ...)": "text-area"
+      },
+      "geometry": "paragraphs[].boundingRegions[0].polygon -> axis-aligned bbox, normalized by pages[0].width/height, clamped to [0,1]",
+      "per_box_confidence": false,
+      "operating_point": "fixed, un-thresholdable (score:=1.0, confidence 0.00)",
+      "footnote_class_present": true,
+      "s3_labels": "s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/azure_di/labels",
+      "labels_manifest": "sha256/azure_di.sha256",
+      "labels_aggregate_sha256": "3497c147826333aeb1503e29409bfabdc9bc949fa75e68e8167c67f36dfb56bc",
+      "results_v4_833": {"header_footer_F1": 0.611, "text_area_F1": 0.990, "footnote_F1": 0.252, "mean_F1": 0.618, "shared_mAP_5095": 0.103, "HT_crop_header_footer": 0.181, "HT_crop_footnote": 0.178}
+    },
+    {
+      "id": "aws_textract",
+      "provider": "Amazon Web Services",
+      "product": "Amazon Textract",
+      "operation": "AnalyzeDocument, FeatureTypes=[\"LAYOUT\"] (synchronous, image bytes)",
+      "api_version": "UNKNOWN (Textract exposes no user-selectable model/API version; the deployed Layout model is service-managed)",
+      "region": "us-east-1",
+      "model_mutability": "Versionless managed service; the Layout model may be updated by the provider at any time with no version handle. Served model version UNKNOWN and mutable.",
+      "documentation_url": "https://docs.aws.amazon.com/textract/latest/dg/layoutresponse.html",
+      "input_handling": "raw JPEG bytes; no preprocess",
+      "native_to_tiblad_map": {
+        "LAYOUT_HEADER": "header",
+        "LAYOUT_FOOTER": "footer",
+        "LAYOUT_PAGE_NUMBER": "footer",
+        "other LAYOUT_* (TEXT, TITLE, SECTION_HEADER, LIST, TABLE, FIGURE, KEY_VALUE, ...)": "text-area",
+        "non-LAYOUT_* blocks": "dropped",
+        "footnote": "absent (no footnote type) -> footnote F1 = 0 by construction"
+      },
+      "geometry": "Geometry.BoundingBox {Left, Top, Width, Height} (already normalized 0..1) -> center/size, clamped",
+      "per_box_confidence": true,
+      "per_box_confidence_note": "per-block Confidence/100 retained as the 6th label column",
+      "operating_point": "fixed at confidence 0.00 (no Textract validation predictions were generated, so no validation-selected point). The test-set best-mean-F1 confidence is also 0.00, so the fixed point coincides with the test optimum; selection used no test tuning.",
+      "footnote_class_present": false,
+      "s3_labels": "s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/aws_textract/labels",
+      "labels_manifest": "sha256/aws_textract.sha256",
+      "labels_aggregate_sha256": "8272fb903dd6c15a7122d8c59c6f13ae016f251c6ee6ec95db24ee401e151e79",
+      "results_v4_833": {"header_footer_F1": 0.232, "text_area_F1": 0.835, "footnote_F1": 0.000, "mean_F1": 0.356, "shared_mAP_5095": 0.004, "HT_crop_header_footer": 0.160, "HT_crop_footnote": 0.642}
+    },
+    {
+      "id": "google_docai",
+      "provider": "Google Cloud",
+      "product": "Google Cloud Document AI",
+      "model": "Layout Parser processor (LAYOUT_PARSER_PROCESSOR)",
+      "operation": "documentai_v1 DocumentProcessorServiceClient.process_document, api_endpoint us-documentai.googleapis.com",
+      "processor_version": "pretrained-layout-parser-v1.0-2024-06-03 (stable, explicitly pinned)",
+      "processor_id": "b3c84f91b290e421",
+      "region": "us",
+      "model_mutability": "NONE observed: processor version explicitly pinned; v1.5/v1.6 release-candidate versions were avoided because they return empty bounding boxes (known provider-side bug).",
+      "documentation_url": "https://cloud.google.com/document-ai/docs/layout-parse-chunk",
+      "input_handling": "application/pdf: each JPEG re-encoded into a single-page PDF via PIL (convert('RGB').save(format='PDF')), because Layout Parser rejects image/*. This preprocessing step is not applied to Azure/Textract.",
+      "native_to_tiblad_map": {
+        "header": "header",
+        "footer": "footer",
+        "other (paragraph, subtitle, heading-1..5, list, table, image)": "text-area",
+        "footnote": "absent (no footnote type) -> footnote F1 = 0 by construction"
+      },
+      "geometry": "document_layout.blocks walked recursively; bounding_box.normalized_vertices (or vertices/W,H) -> center/size, clamped",
+      "per_box_confidence": false,
+      "operating_point": "fixed, un-thresholdable (score:=1.0, confidence 0.00)",
+      "footnote_class_present": false,
+      "s3_labels": "s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/gdocai/labels",
+      "s3_labels_note": "S3 prefix uses 'gdocai'; the canonical system id in the scorer is 'google_docai'.",
+      "labels_manifest": "sha256/google_docai.sha256",
+      "labels_aggregate_sha256": "4af59abbd9b77bd605d1917feb0db155beb76557dc79d08ff90b9d767c417372",
+      "results_v4_833": {"header_footer_F1": 0.151, "text_area_F1": 0.967, "footnote_F1": 0.000, "mean_F1": 0.373, "shared_mAP_5095": 0.006, "HT_crop_header_footer": 0.412, "HT_crop_footnote": 0.928}
+    }
+  ],
+  "manifests": {
+    "method": "Per file: 'sha256sum <relative-basename>'. Entries sorted bytewise (LC_ALL=C) by relative filename. No absolute paths in hashed content. Aggregate = sha256 of the sorted manifest file.",
+    "entries": [
+      {"file": "sha256/images.sha256",       "count": 833, "aggregate_sha256": "2b1676c4c0d80641b23116c0ecac8f40cee80842ebe5d5b7d160660e080dceba"},
+      {"file": "sha256/gt_labels.sha256",     "count": 833, "aggregate_sha256": "27c40996bdb5090d661961fb1763dab0f98dff6a911a91e716992cea1504c3d9"},
+      {"file": "sha256/azure_di.sha256",      "count": 833, "aggregate_sha256": "3497c147826333aeb1503e29409bfabdc9bc949fa75e68e8167c67f36dfb56bc"},
+      {"file": "sha256/aws_textract.sha256",  "count": 833, "aggregate_sha256": "8272fb903dd6c15a7122d8c59c6f13ae016f251c6ee6ec95db24ee401e151e79"},
+      {"file": "sha256/google_docai.sha256",  "count": 833, "aggregate_sha256": "4af59abbd9b77bd605d1917feb0db155beb76557dc79d08ff90b9d767c417372"}
+    ],
+    "stem_alignment": "All five manifests share an identical set of 833 page stems (0 missing, 0 extra)."
+  },
+  "archive_access": {
+    "location": "s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/{azure_di,aws_textract,gdocai}/",
+    "anonymous_access": false,
+    "access_conditions": "Authenticated AWS access required. Anonymous listing returns AccessDenied and anonymous HTTPS GET returns HTTP 403 (checked 2026-09-07). The objects are not publicly downloadable without credentials.",
+    "each_prefix_contents": "833 label .txt files + best.txt + data.yaml"
+  },
+  "verification": {
+    "date": "2026-09-07",
+    "gt_files": 833,
+    "images": 833,
+    "prediction_files_per_provider": 833,
+    "missing_or_extra_stems": 0,
+    "checksums_recomputed": true,
+    "paper_metrics_reproduced": true,
+    "reproduced_at_operating_points": {
+      "azure_di": {"conf": 0.0, "mean_F1": 0.618, "hf_F1": 0.611, "ta_F1": 0.990, "fn_F1": 0.252, "HT_crop_hf": 0.181, "HT_crop_fn": 0.178},
+      "aws_textract": {"conf": 0.0, "mean_F1": 0.356, "hf_F1": 0.232, "ta_F1": 0.835, "fn_F1": 0.000, "HT_crop_hf": 0.160, "HT_crop_fn": 0.642},
+      "google_docai": {"conf": 0.0, "mean_F1": 0.373, "hf_F1": 0.151, "ta_F1": 0.967, "fn_F1": 0.000, "HT_crop_hf": 0.412, "HT_crop_fn": 0.928}
+    }
+  }
+}
