@@ -11,7 +11,14 @@
 # It does NOT contact any API and needs no network access.
 #
 # Usage:
+#   # self-contained: verify the in-repo prediction tarballs (no network needed)
+#   ./verify.sh --detections ./detections
+#
+#   # or point at already-extracted directories / the gated test set
 #   ./verify.sh --images DIR --gt DIR --azure DIR --textract DIR --google DIR
+#
+# --detections DIR holds the three <id>.labels.tar.gz + SHA256SUMS; the tarballs
+# are checksum-verified and extracted, then their labels are checked per-file.
 # Any artifact whose DIR is omitted is skipped for the per-file check, but its
 # committed manifest is still checked for count, aggregate and stem alignment.
 set -u
@@ -19,7 +26,10 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAN="$HERE/sha256"
 JSON="$HERE/provenance.json"
 
-IMAGES="" GT="" AZURE="" TEXTRACT="" GOOGLE=""
+IMAGES="" GT="" AZURE="" TEXTRACT="" GOOGLE="" DETECTIONS=""
+_WORK=""
+cleanup() { [ -n "$_WORK" ] && rm -rf "$_WORK"; }
+trap cleanup EXIT
 while [ $# -gt 0 ]; do
   case "$1" in
     --images) IMAGES="$2"; shift 2;;
@@ -27,6 +37,7 @@ while [ $# -gt 0 ]; do
     --azure) AZURE="$2"; shift 2;;
     --textract) TEXTRACT="$2"; shift 2;;
     --google) GOOGLE="$2"; shift 2;;
+    --detections) DETECTIONS="$2"; shift 2;;
     -h|--help) grep '^#' "$0" | sed 's/^# \{0,1\}//'; exit 0;;
     *) echo "unknown arg: $1"; exit 2;;
   esac
@@ -70,6 +81,30 @@ check_one() { # $1=label $2=manifest-basename $3=srcdir $4=glob
 note "== provenance.json syntax =="
 python3 -c "import json;json.load(open('$JSON'))" 2>/dev/null \
   && note "OK    provenance.json is valid JSON" || bad "provenance.json is not valid JSON"
+
+# If in-repo detection tarballs are provided, checksum-verify and extract them,
+# then feed the extracted label dirs into the per-file check below.
+if [ -n "$DETECTIONS" ]; then
+  note ""; note "== in-repo detection tarballs ($DETECTIONS) =="
+  if [ ! -d "$DETECTIONS" ]; then bad "detections dir not found: $DETECTIONS"; else
+    if [ -f "$DETECTIONS/SHA256SUMS" ]; then
+      if ( cd "$DETECTIONS" && sha256sum -c SHA256SUMS ) >/dev/null 2>&1; then
+        note "OK    all tarball SHA-256 match $DETECTIONS/SHA256SUMS"
+      else bad "tarball SHA-256 mismatch against $DETECTIONS/SHA256SUMS"; fi
+    else bad "missing $DETECTIONS/SHA256SUMS"; fi
+    _WORK="$(mktemp -d)"
+    for id in azure_di aws_textract google_docai; do
+      tb="$DETECTIONS/$id.labels.tar.gz"
+      if [ -f "$tb" ]; then
+        mkdir -p "$_WORK/$id"; tar -xzf "$tb" -C "$_WORK/$id"
+      else bad "missing tarball: $tb"; fi
+    done
+    # only set if the user did not override explicitly
+    [ -z "$AZURE" ]    && AZURE="$_WORK/azure_di/labels"
+    [ -z "$TEXTRACT" ] && TEXTRACT="$_WORK/aws_textract/labels"
+    [ -z "$GOOGLE" ]   && GOOGLE="$_WORK/google_docai/labels"
+  fi
+fi
 
 note ""; note "== counts, per-file & aggregate checksums =="
 check_one images       images.sha256       "$IMAGES"   '*.jpg'

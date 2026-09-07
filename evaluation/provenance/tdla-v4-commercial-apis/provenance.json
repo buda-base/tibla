@@ -139,7 +139,21 @@
     ],
     "stem_alignment": "All five manifests share an identical set of 833 page stems (0 missing, 0 extra)."
   },
+  "detections_in_repo": {
+    "note": "The derived detections are committed to this repository so the manifest is self-contained and independently verifiable with no S3 credentials. Payload is small (~267 KB total), so it is stored as reproducible per-provider gzip tarballs rather than Git LFS/Xet.",
+    "dir": "detections/",
+    "layout": "each <id>.labels.tar.gz contains labels/<stem>.txt (833 files)",
+    "reproducible_build": "tar --sort=name --mtime='2026-08-29 00:00:00 UTC' --owner=0 --group=0 --numeric-owner -C <provider>/.. -cf - labels | gzip -n -9",
+    "tarball_checksums_file": "detections/SHA256SUMS",
+    "tarballs": [
+      {"file": "detections/azure_di.labels.tar.gz",      "sha256": "1226161d165b1e394d4e342831ffcf11bd18a3bc6d8298e1f90209c7569d955a"},
+      {"file": "detections/aws_textract.labels.tar.gz",  "sha256": "fd4c2bc61e8bc84aa0ff37e62f0b51a450ecaf9492b4fa4d5c982c40bb26bda9"},
+      {"file": "detections/google_docai.labels.tar.gz",  "sha256": "3920d5c0fb5b5a360bae267094fafe88a17e2638d8196ea6f9612ca0dfc0d9ad"}
+    ],
+    "verify": "./verify.sh --detections ./detections  (checksum-verifies + extracts the tarballs and checks every per-file SHA-256 against sha256/, no network)"
+  },
   "archive_access": {
+    "note": "Original archive location; the same derived detections are now also committed in-repo under detections/ (see detections_in_repo).",
     "location": "s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/{azure_di,aws_textract,gdocai}/",
     "anonymous_access": false,
     "access_conditions": "Authenticated AWS access required. Anonymous listing returns AccessDenied and anonymous HTTPS GET returns HTTP 403 (checked 2026-09-07). The objects are not publicly downloadable without credentials.",

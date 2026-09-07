@@ -90,7 +90,29 @@ column envelope, **footnote** unchanged; matches at IoU ≥ 0.5.
 
 All values re-derive exactly from the archived detections (see *Verification*).
 
-## Archived derived detections (S3)
+## Derived detections in this repository
+
+The derived detections are **committed here** so the manifest is self-contained
+and verifiable with no credentials. The payload is small (~267 KB total), so it
+is stored as reproducible per-provider gzip tarballs (not Git LFS/Xet):
+
+```
+detections/azure_di.labels.tar.gz       # labels/<stem>.txt  × 833
+detections/aws_textract.labels.tar.gz   # labels/<stem>.txt  × 833
+detections/google_docai.labels.tar.gz   # labels/<stem>.txt  × 833
+detections/SHA256SUMS                    # SHA-256 of the three tarballs
+```
+
+Each tarball extracts to `labels/<stem>.txt`. The tarballs are byte-reproducible
+(`tar --sort=name --mtime='2026-08-29 00:00:00 UTC' --owner=0 --group=0
+--numeric-owner … | gzip -n -9`); their SHA-256 are in `detections/SHA256SUMS`
+and `provenance.json`. The authoritative reference remains the per-file
+manifests under `sha256/` — `verify.sh` extracts the tarballs and checks every
+file against them.
+
+### Original archive (S3)
+
+The same detections were originally archived on S3:
 
 ```
 s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/azure_di/labels
@@ -99,9 +121,10 @@ s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/gdocai/labels    # canonical i
 ```
 Each prefix holds 833 label `.txt` files plus `best.txt` and `data.yaml`.
 
-**Access conditions.** These objects are **not anonymously accessible**.
-Anonymous listing returns `AccessDenied` and anonymous HTTPS GET returns
-HTTP `403` (checked 2026-09-07); **authenticated AWS access is required**.
+**Access conditions.** These S3 objects are **not anonymously accessible**:
+anonymous listing returns `AccessDenied` and anonymous HTTPS GET returns HTTP
+`403` (checked 2026-09-07); **authenticated AWS access is required**. The in-repo
+tarballs above are the credential-free equivalent.
 
 ## What is and is not reproducible
 
@@ -140,37 +163,46 @@ All five manifests share an identical set of 833 page stems.
 
 ## Download & verify
 
-The archived detections require authenticated AWS access. Download the frozen
-v4 test images and labels from the gated dataset `BDRC/TiBLAD` (tag `v4`), and
-the derived detections from S3 (credentials required):
+**Self-contained (no credentials, no network)** — verify the in-repo detections:
 
 ```bash
-# derived detections (authenticated AWS)
-aws s3 sync s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/azure_di/labels     ./azure_di/labels
-aws s3 sync s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/aws_textract/labels ./aws_textract/labels
-aws s3 sync s3://bec.bdrc.io/models/hff-detection/tdlav4/eval/gdocai/labels       ./google_docai/labels
-
-# verify counts, stem alignment and every SHA-256 against this manifest
-./verify.sh \
-    --images   ./images/test \
-    --gt       ./labels/test \
-    --azure    ./azure_di/labels \
-    --textract ./aws_textract/labels \
-    --google   ./google_docai/labels
+./verify.sh --detections ./detections
 ```
 
-`verify.sh` recomputes each per-file checksum, compares against the committed
-manifests, recomputes the portable aggregates, checks the 833 counts and stem
-alignment, and validates `provenance.json`.
+This checksum-verifies the three tarballs against `detections/SHA256SUMS`,
+extracts them, checks every per-file SHA-256 against `sha256/`, recomputes the
+portable aggregates, checks the 833 counts and stem alignment, and validates
+`provenance.json`.
+
+**Optional — also verify the gated test set.** The v4 test images and
+ground-truth labels are distributed via the gated dataset `BDRC/TiBLAD`
+(tag `v4`); point the extra flags at your local copy:
+
+```bash
+./verify.sh --detections ./detections \
+    --images <v4-test>/images/test \
+    --gt     <v4-test>/labels/test
+```
+
+Explicit `--azure/--textract/--google DIR` flags override the tarball payload if
+you have the detections extracted elsewhere (e.g. synced from S3 with
+authenticated AWS access).
 
 ## Exact re-scoring command
 
 ```bash
-# from the repository root, with the v4 test set and the synced detections
+# extract the in-repo detections into a pred-root layout
+mkdir -p /tmp/preds
+for id in azure_di aws_textract google_docai; do
+  mkdir -p /tmp/preds/$id
+  tar -xzf detections/$id.labels.tar.gz -C /tmp/preds/$id   # -> /tmp/preds/$id/labels
+done
+
+# from the repository root, with the gated v4 test set
 .venv_eval/bin/python evaluation/run_v4_lit_eval.py \
     --gt-dir  <v4-test>/labels/test \
     --img-dir <v4-test>/images/test \
-    --pred-root <detections-root> \      # contains azure_di/ aws_textract/ google_docai/, each with labels/
+    --pred-root /tmp/preds \             # azure_di/ aws_textract/ google_docai/, each with labels/
     --out-dir /tmp/tdla-v4-commercial-rescore \
     --systems azure_di,aws_textract,google_docai
 ```
