@@ -77,6 +77,77 @@ def box_area(box) -> float:
     return max(0.0, box[2] - box[0]) * max(0.0, box[3] - box[1])
 
 
+def rect_inter(a, b):
+    """Intersection rectangle of two xyxy boxes, or None if empty/degenerate."""
+    if a is None or b is None:
+        return None
+    x1, y1 = max(a[0], b[0]), max(a[1], b[1])
+    x2, y2 = min(a[2], b[2]), min(a[3], b[3])
+    if x2 <= x1 or y2 <= y1:
+        return None
+    return [x1, y1, x2, y2]
+
+
+def rect_union_area(rects) -> float:
+    """Exact area of the union of axis-aligned xyxy rectangles.
+
+    Coordinate-compression sweep: for every x-slab between consecutive unique
+    x-edges, sum the length of the y-intervals covered by any rectangle that
+    spans the slab. Overlaps are counted once, so this is the geometrically
+    exact union area (no double counting).
+    """
+    rs = [r for r in rects if r is not None and r[2] > r[0] and r[3] > r[1]]
+    if not rs:
+        return 0.0
+    xs = sorted({r[0] for r in rs} | {r[2] for r in rs})
+    area = 0.0
+    for i in range(len(xs) - 1):
+        x1, x2 = xs[i], xs[i + 1]
+        dx = x2 - x1
+        if dx <= 0:
+            continue
+        spans = sorted((r[1], r[3]) for r in rs if r[0] <= x1 and r[2] >= x2)
+        if not spans:
+            continue
+        cy = -math.inf
+        cov = 0.0
+        for a, b in spans:
+            if b <= cy:
+                continue
+            a = max(a, cy)
+            cov += b - a
+            cy = b
+        area += dx * cov
+    return area
+
+
+def crop_residual(E, peripheral_rects, gt_rect):
+    """Exact post-subtraction crop residual for one GT rectangle.
+
+    Given the predicted text-area envelope ``E`` (xyxy or None), the list of
+    retained peripheral prediction rectangles ``peripheral_rects`` whose union
+    is subtracted from the crop, and one ground-truth peripheral box
+    ``gt_rect``, return ``(e_inter_g, removed, residual)`` where:
+
+      e_inter_g = area(E ∩ g)                       raw pre-subtraction overlap
+      removed   = area(E ∩ g ∩ union(peripheral))    area punched out (once)
+      residual  = e_inter_g - removed = area((E \\ P) ∩ g)
+
+    ``E \\ P`` is the actual OCR body crop C. Subtraction of the peripheral
+    union is exact (overlapping peripheral predictions are subtracted only
+    once). Pages with no predicted text-area pass ``E=None`` -> all zeros.
+    """
+    R = rect_inter(E, gt_rect)
+    if R is None:
+        return 0.0, 0.0, 0.0
+    e_inter_g = box_area(R)
+    clipped = [rect_inter(R, p) for p in peripheral_rects]
+    removed = rect_union_area(clipped)
+    # numerical guard: removed can never exceed the enclosing rectangle area
+    removed = min(removed, e_inter_g)
+    return e_inter_g, removed, e_inter_g - removed
+
+
 def envelope_xyxy(boxes):
     return [min(b[0] for b in boxes), min(b[1] for b in boxes),
             max(b[2] for b in boxes), max(b[3] for b in boxes)]
@@ -599,6 +670,115 @@ def hidden_trespass(pages, conf: float, cover: float = 0.5):
             "area_G_px": s["area_G"],
             "area_E_inter_U_px": s["area_E_inter_U"],
             "area_E_inter_D_px": s["area_E_inter_D"],
+        }
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Hidden Trespass v2 — exact POST-SUBTRACTION crop metric.
+# ---------------------------------------------------------------------------
+
+# Peripheral classes the production body crop actually paints out of the
+# text-area crop canvas (bec-orchestration paddleocr_v2 `crop_body_regions`,
+# blank_labels = footnote, header, footer). All non-body classes.
+CROP_SUBTRACT_CLASSES = (0, 2, 3)  # header, footnote, footer
+
+
+def hidden_trespass_crop(pages, conf: float,
+                         subtract_classes=CROP_SUBTRACT_CLASSES):
+    """Exact post-subtraction crop Hidden Trespass, micro-averaged over pages.
+
+    For each page p, using predictions kept at >= `conf`:
+      * E_p = smallest axis-aligned rectangle enclosing all retained predicted
+              text-area boxes (None if none predicted);
+      * P_p = geometric union of all retained peripheral prediction boxes whose
+              classes are in `subtract_classes` (production subtracts header,
+              footnote, footer from the body text-area crop);
+      * C_p = E_p \\ P_p  is the actual OCR body crop.
+
+    For peripheral GT class c in {header-footer (0+3), footnote (2)}:
+
+        HT_c = sum_p sum_{g in G_{c,p}} area(C_p ∩ g)  /  sum_p sum_{g} area(g)
+
+    i.e. the ground-truth peripheral AREA that still remains inside the
+    post-subtraction body crop, over total GT area (the same denominator and
+    micro-averaging convention as the previous metric).
+
+    Diagnostic decomposition (exact identity, checked at runtime):
+        HT_c = matched_residual_c + unmatched_residual_c
+      where a GT box is *matched* iff it has a same-class prediction at
+      IoU>=0.5 (greedy, the same rule as contamination()/operating_points()),
+      *unmatched* otherwise. matched_residual is residual area from matched but
+      incompletely removed regions; unmatched_residual is residual from
+      unmatched (missed) GT.
+
+    Also reported (all over the same denominator sum area(G_c)):
+        raw_overlap_c = sum area(E_p ∩ g)          (pre-subtraction overlap)
+        removed_c     = sum area(E_p ∩ g ∩ P_p)    (area removed by peripherals)
+        raw_overlap_c = HT_c + removed_c            (identity)
+    """
+    keys = {"header-footer": (0, 3), "footnote": (2,)}
+    acc = {k: dict(area_G=0.0, num_residual=0.0, num_raw=0.0, num_removed=0.0,
+                   num_res_matched=0.0, num_res_unmatched=0.0,
+                   n_gt=0, n_matched=0, n_unmatched=0, n_pages_no_ta=0)
+           for k in keys}
+    for stem, W, H, gboxes, pboxes in pages:
+        gpx = [{**b, "xyxy": to_px(b, W, H)} for b in gboxes]
+        ppx = [{**b, "xyxy": to_px(b, W, H)} for b in pboxes if b["conf"] >= conf]
+        ta = [b["xyxy"] for b in ppx if b["cls"] == 1]
+        env = envelope_xyxy(ta) if ta else None
+        # P_p: union of all retained peripheral predictions to subtract.
+        peri_rects = [b["xyxy"] for b in ppx if b["cls"] in subtract_classes]
+        for key, cls in keys.items():
+            gts = [b["xyxy"] for b in gpx if b["cls"] in cls]
+            prs = [b["xyxy"] for b in ppx if b["cls"] in cls]
+            used = [False] * len(prs)
+            if env is None:
+                acc[key]["n_pages_no_ta"] += 1
+            for gb in gts:
+                acc[key]["n_gt"] += 1
+                acc[key]["area_G"] += box_area(gb)
+                # matched status: greedy same-class IoU>=0.5
+                best, bj = 0.0, -1
+                for j, pb in enumerate(prs):
+                    if used[j]:
+                        continue
+                    v = iou_xyxy(gb, pb)
+                    if v > best:
+                        best, bj = v, j
+                matched = best >= 0.5 and bj >= 0
+                if matched:
+                    used[bj] = True
+                e_inter_g, removed, residual = crop_residual(env, peri_rects, gb)
+                acc[key]["num_raw"] += e_inter_g
+                acc[key]["num_removed"] += removed
+                acc[key]["num_residual"] += residual
+                if matched:
+                    acc[key]["n_matched"] += 1
+                    acc[key]["num_res_matched"] += residual
+                else:
+                    acc[key]["n_unmatched"] += 1
+                    acc[key]["num_res_unmatched"] += residual
+    out = {}
+    for key, s in acc.items():
+        g = s["area_G"] or 1.0
+        ht = s["num_residual"] / g
+        mr = s["num_res_matched"] / g
+        ur = s["num_res_unmatched"] / g
+        out[key] = {
+            "HT": ht,                              # post-crop hidden trespass
+            "matched_residual": mr,                # from matched, incompletely removed
+            "unmatched_residual": ur,              # from unmatched (missed) GT
+            "raw_overlap": s["num_raw"] / g,       # pre-subtraction area(E∩G)/area(G)
+            "removed": s["num_removed"] / g,       # area removed by peripheral preds
+            "n_gt": s["n_gt"],
+            "n_matched": s["n_matched"],
+            "n_unmatched": s["n_unmatched"],
+            "n_pages_no_ta": s["n_pages_no_ta"],
+            "area_G_px": s["area_G"],
+            "num_residual_px": s["num_residual"],
+            "num_raw_px": s["num_raw"],
+            "num_removed_px": s["num_removed"],
         }
     return out
 

@@ -31,7 +31,7 @@ import numpy as np
 
 from literature_metrics import (
     best_f1_sweep, coco_map, contamination, cote_dataset, hidden_trespass,
-    iter_pages, led_errors, load_sizes, operating_points,
+    hidden_trespass_crop, iter_pages, led_errors, load_sizes, operating_points,
 )
 
 # id -> (display name, group, role). Order = table order (ours first).
@@ -83,6 +83,7 @@ def score_system(sid, name, group, role, pages, out_dir, skip_cote=False):
         },
         "op_canonical": op,
         "hidden_trespass": hidden_trespass(pages, conf),
+        "hidden_trespass_crop": hidden_trespass_crop(pages, conf),
         "contamination": contamination(pages, conf),
         "led": led_errors(pages, conf),
     }
@@ -90,8 +91,10 @@ def score_system(sid, name, group, role, pages, out_dir, skip_cote=False):
         result["cote"] = cote_dataset(pages, conf, max_dim=1024)
     result["wall_s"] = round(time.time() - t0, 2)
     ht = result["hidden_trespass"]
+    htc = result["hidden_trespass_crop"]
     print(f"  done {result['wall_s']}s  meanF1={sweep['best_mean_F1']:.3f}  "
-          f"HT-hf={ht['header-footer']['HT']:.4f}  HT-fn={ht['footnote']['HT']:.4f}"
+          f"HT-hf={ht['header-footer']['HT']:.4f}->crop {htc['header-footer']['HT']:.4f}  "
+          f"HT-fn={ht['footnote']['HT']:.4f}->crop {htc['footnote']['HT']:.4f}"
           + ("" if skip_cote else f"  COTe-T={result['cote']['trespass']:.4f}"),
           flush=True)
     (out_dir / f"{sid}.json").write_text(json.dumps(result, indent=2))
@@ -165,6 +168,39 @@ def write_note(results, meta, path, skip_cote=False):
         a(f"| {r['name']} | {_fmt(hf['HT'])} | {_fmt(hf['R'])} | {_fmt(hf['total_bleed'])} | "
           f"{_pct(hf['count_contamination_rate'])} | {_fmt(fn['HT'])} | {_fmt(fn['R'])} | "
           f"{_fmt(fn['total_bleed'])} | {_pct(fn['count_contamination_rate'])} |")
+    a("")
+
+    a("## Post-subtraction crop Hidden Trespass (production body crop)")
+    a("")
+    a("Exact metric. The OCR body crop is C = E \\ P where E is the predicted")
+    a("text-area envelope and P is the geometric union of the retained peripheral")
+    a("predictions the production pipeline paints out of the body crop "
+      "(**header + footnote + footer**, matching bec-orchestration `paddleocr_v2`")
+    a("`crop_body_regions`). For class *c* ∈ {header-footer, footnote},")
+    a("micro-averaged over pages:")
+    a("")
+    a("- **HT_c(crop)** = Σ area(C ∩ g) / Σ area(g) — GT peripheral area that")
+    a("  remains in the post-subtraction body crop.")
+    a("- decomposition: **matched-residual** (matched but incompletely removed) +")
+    a("  **unmatched-residual** (missed GT) = HT_c(crop).")
+    a("- **raw** = Σ area(E ∩ g)/Σarea(g) (pre-subtraction); **removed** = area")
+    a("  punched out by peripheral preds; raw = HT(crop) + removed.")
+    a("- **old HT** = previous match-conditioned metric (undetected area only, no")
+    a("  subtraction), shown for comparison at the SAME operating confidence.")
+    a("")
+    a("| system | conf | old hf HT | new hf HT | Δhf | hf matched | hf unmatched | hf raw | hf removed | old fn HT | new fn HT | Δfn | fn matched | fn unmatched |")
+    a("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+    for r in results:
+        o = r["hidden_trespass"]
+        c = r["hidden_trespass_crop"]
+        ohf, ofn = o["header-footer"], o["footnote"]
+        chf, cfn = c["header-footer"], c["footnote"]
+        a(f"| {r['name']} | {r['operating_conf']:.2f} | "
+          f"{_fmt(ohf['HT'],4)} | {_fmt(chf['HT'],4)} | {_fmt(chf['HT']-ohf['HT'],4)} | "
+          f"{_fmt(chf['matched_residual'],4)} | {_fmt(chf['unmatched_residual'],4)} | "
+          f"{_fmt(chf['raw_overlap'],4)} | {_fmt(chf['removed'],4)} | "
+          f"{_fmt(ofn['HT'],4)} | {_fmt(cfn['HT'],4)} | {_fmt(cfn['HT']-ofn['HT'],4)} | "
+          f"{_fmt(cfn['matched_residual'],4)} | {_fmt(cfn['unmatched_residual'],4)} |")
     a("")
 
     if not skip_cote:

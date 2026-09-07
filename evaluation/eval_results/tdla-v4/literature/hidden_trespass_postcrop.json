@@ -1,0 +1,400 @@
+{
+  "note": "Post-subtraction crop Hidden Trespass vs previous match-conditioned HT, at each system's paper operating confidence (metric change only, no threshold retuning). Body crop C = E \\ P subtracts header+footnote+footer predictions (bec-orchestration paddleocr_v2 crop_body_regions).",
+  "subtract_classes": [
+    "header",
+    "footnote",
+    "footer"
+  ],
+  "systems": [
+    {
+      "id": "rtdetr_tdlav4",
+      "name": "RT-DETR-l tam2col (ours, v4; seed0)",
+      "group": "ours",
+      "operating_conf": 0.74,
+      "header_footer": {
+        "old_HT": 0.008222214002707017,
+        "new_HT_crop": 0.008911030065772917,
+        "delta": 0.0006888160630658998,
+        "matched_residual": 0.0006888160630658972,
+        "unmatched_residual": 0.008222214002707017,
+        "raw_overlap": 0.009855097646291803,
+        "removed": 0.0009440675805188893,
+        "n_gt": 1543,
+        "n_matched": 1442,
+        "n_unmatched": 101
+      },
+      "footnote": {
+        "old_HT": 0.03680300171150055,
+        "new_HT_crop": 0.042789126500217226,
+        "delta": 0.005986124788716678,
+        "matched_residual": 0.005986124788716682,
+        "unmatched_residual": 0.03680300171150055,
+        "raw_overlap": 0.09198692764436932,
+        "removed": 0.049197801144152085,
+        "n_gt": 38,
+        "n_matched": 37,
+        "n_unmatched": 1
+      }
+    },
+    {
+      "id": "rfdetr_tdlav4",
+      "name": "RF-DETR-Large tam2col (ours, v4)",
+      "group": "ours",
+      "operating_conf": 0.26,
+      "header_footer": {
+        "old_HT": 0.02000843654780728,
+        "new_HT_crop": 0.021026585594721113,
+        "delta": 0.0010181490469138334,
+        "matched_residual": 0.001018149046913832,
+        "unmatched_residual": 0.02000843654780728,
+        "raw_overlap": 0.022132004115364555,
+        "removed": 0.0011054185206434415,
+        "n_gt": 1543,
+        "n_matched": 1454,
+        "n_unmatched": 89
+      },
+      "footnote": {
+        "old_HT": 0.21584058617654484,
+        "new_HT_crop": 0.16853483527672447,
+        "delta": -0.047305750899820365,
+        "matched_residual": 0.0,
+        "unmatched_residual": 0.16853483527672447,
+        "raw_overlap": 0.22556423282343865,
+        "removed": 0.057029397546714176,
+        "n_gt": 38,
+        "n_matched": 33,
+        "n_unmatched": 5
+      }
+    },
+    {
+      "id": "docling_heron_tdlav4",
+      "name": "Docling layout-heron tam2col (ours, v4)",
+      "group": "ours",
+      "operating_conf": 0.08,
+      "header_footer": {
+        "old_HT": 0.0018789620455938317,
+        "new_HT_crop": 0.0025087084660040406,
+        "delta": 0.0006297464204102089,
+        "matched_residual": 0.0006297464204102095,
+        "unmatched_residual": 0.0018789620455938317,
+        "raw_overlap": 0.005064731852489044,
+        "removed": 0.0025560233864850026,
+        "n_gt": 1543,
+        "n_matched": 1468,
+        "n_unmatched": 75
+      },
+      "footnote": {
+        "old_HT": 0.07357926734537572,
+        "new_HT_crop": 0.07357926734537572,
+        "delta": 0.0,
+        "matched_residual": 0.0,
+        "unmatched_residual": 0.07357926734537572,
+        "raw_overlap": 0.07357926734537572,
+        "removed": 0.0,
+        "n_gt": 38,
+        "n_matched": 35,
+        "n_unmatched": 3
+      }
+    },
+    {
+      "id": "doclayout_tdlav4",
+      "name": "DocLayout-YOLO tam2col (ours, v4)",
+      "group": "ours",
+      "operating_conf": 0.29,
+      "header_footer": {
+        "old_HT": 0.0035597924703712268,
+        "new_HT_crop": 0.004026701368432186,
+        "delta": 0.0004669088980609596,
+        "matched_residual": 0.0004669088980609593,
+        "unmatched_residual": 0.0035597924703712268,
+        "raw_overlap": 0.00540846282944311,
+        "removed": 0.0013817614610109241,
+        "n_gt": 1543,
+        "n_matched": 1440,
+        "n_unmatched": 103
+      },
+      "footnote": {
+        "old_HT": 0.10607945422280135,
+        "new_HT_crop": 0.10607945422280135,
+        "delta": 0.0,
+        "matched_residual": 0.0,
+        "unmatched_residual": 0.10607945422280135,
+        "raw_overlap": 0.10607945422280135,
+        "removed": 0.0,
+        "n_gt": 38,
+        "n_matched": 30,
+        "n_unmatched": 8
+      }
+    },
+    {
+      "id": "pp_doclayout_tdlav4",
+      "name": "PP-DocLayout-L tam2col (ours, v4)",
+      "group": "ours",
+      "operating_conf": 0.68,
+      "header_footer": {
+        "old_HT": 0.0028147669833785346,
+        "new_HT_crop": 0.0038867949733334263,
+        "delta": 0.0010720279899548916,
+        "matched_residual": 0.001072027989954892,
+        "unmatched_residual": 0.0028147669833785346,
+        "raw_overlap": 0.004831344947452705,
+        "removed": 0.0009445499741192783,
+        "n_gt": 1543,
+        "n_matched": 1449,
+        "n_unmatched": 94
+      },
+      "footnote": {
+        "old_HT": 0.036779759331513014,
+        "new_HT_crop": 0.036779759331513014,
+        "delta": 0.0,
+        "matched_residual": 0.0,
+        "unmatched_residual": 0.036779759331513014,
+        "raw_overlap": 0.036779759331513014,
+        "removed": 0.0,
+        "n_gt": 38,
+        "n_matched": 37,
+        "n_unmatched": 1
+      }
+    },
+    {
+      "id": "pp_doclayout_ots",
+      "name": "PP-DocLayout-L (off-the-shelf)",
+      "group": "off_the_shelf",
+      "operating_conf": 0.3,
+      "header_footer": {
+        "old_HT": 0.17829592873369862,
+        "new_HT_crop": 0.18894724866447882,
+        "delta": 0.010651319930780195,
+        "matched_residual": 0.0152996940612959,
+        "unmatched_residual": 0.17364755460318299,
+        "raw_overlap": 0.24715857768645846,
+        "removed": 0.05821132902197963,
+        "n_gt": 1543,
+        "n_matched": 647,
+        "n_unmatched": 896
+      },
+      "footnote": {
+        "old_HT": 0.27732600458324885,
+        "new_HT_crop": 0.28105950438783234,
+        "delta": 0.0037334998045834844,
+        "matched_residual": 0.003733499804583455,
+        "unmatched_residual": 0.27732600458324885,
+        "raw_overlap": 0.3463194260551593,
+        "removed": 0.06525992166732701,
+        "n_gt": 38,
+        "n_matched": 22,
+        "n_unmatched": 16
+      }
+    },
+    {
+      "id": "docling_heron_ots",
+      "name": "Docling layout-heron (off-the-shelf)",
+      "group": "off_the_shelf",
+      "operating_conf": 0.58,
+      "header_footer": {
+        "old_HT": 0.07784405486150918,
+        "new_HT_crop": 0.09961482856884366,
+        "delta": 0.021770773707334476,
+        "matched_residual": 0.029151239410160394,
+        "unmatched_residual": 0.07046358915868317,
+        "raw_overlap": 0.21122867809813728,
+        "removed": 0.11161384952929364,
+        "n_gt": 1543,
+        "n_matched": 755,
+        "n_unmatched": 788
+      },
+      "footnote": {
+        "old_HT": 0.09011956388190584,
+        "new_HT_crop": 0.05562276071710034,
+        "delta": -0.0344968031648055,
+        "matched_residual": 9.355333179654036e-05,
+        "unmatched_residual": 0.05552920738530379,
+        "raw_overlap": 0.12155183083079882,
+        "removed": 0.06592907011369849,
+        "n_gt": 38,
+        "n_matched": 20,
+        "n_unmatched": 18
+      }
+    },
+    {
+      "id": "doclayout_docstruct_ots",
+      "name": "DocLayout-YOLO DocStructBench (off-the-shelf)",
+      "group": "off_the_shelf",
+      "operating_conf": 0.08,
+      "header_footer": {
+        "old_HT": 0.09952671339382907,
+        "new_HT_crop": 0.1121908196833568,
+        "delta": 0.01266410628952773,
+        "matched_residual": 0.02652664732162786,
+        "unmatched_residual": 0.085664172361729,
+        "raw_overlap": 0.2615399648711692,
+        "removed": 0.1493491451878123,
+        "n_gt": 1543,
+        "n_matched": 1034,
+        "n_unmatched": 509
+      },
+      "footnote": {
+        "old_HT": 0.24105393944105832,
+        "new_HT_crop": 0.1655184847382191,
+        "delta": -0.07553545470283923,
+        "matched_residual": 0.0,
+        "unmatched_residual": 0.1655184847382191,
+        "raw_overlap": 0.24105393944105832,
+        "removed": 0.07553545470283922,
+        "n_gt": 38,
+        "n_matched": 0,
+        "n_unmatched": 38
+      }
+    },
+    {
+      "id": "surya_vlm",
+      "name": "Surya 2 layout VLM (surya-ocr-2)",
+      "group": "off_the_shelf",
+      "operating_conf": 0.0,
+      "header_footer": {
+        "old_HT": 0.020393654723489873,
+        "new_HT_crop": 0.021028992612059032,
+        "delta": 0.0006353378885691589,
+        "matched_residual": 0.0006540850135883181,
+        "unmatched_residual": 0.02037490759847071,
+        "raw_overlap": 0.021621557041502433,
+        "removed": 0.000592564429443408,
+        "n_gt": 1543,
+        "n_matched": 1326,
+        "n_unmatched": 217
+      },
+      "footnote": {
+        "old_HT": 0.1345140676392942,
+        "new_HT_crop": 0.1345140676392942,
+        "delta": 0.0,
+        "matched_residual": 0.0,
+        "unmatched_residual": 0.1345140676392942,
+        "raw_overlap": 0.1345140676392942,
+        "removed": 0.0,
+        "n_gt": 38,
+        "n_matched": 23,
+        "n_unmatched": 15
+      }
+    },
+    {
+      "id": "chandra",
+      "name": "Chandra 2 (chandra-ocr-2)",
+      "group": "off_the_shelf",
+      "operating_conf": 0.0,
+      "header_footer": {
+        "old_HT": 0.018678483983852568,
+        "new_HT_crop": 0.01913531228760308,
+        "delta": 0.00045682830375051026,
+        "matched_residual": 0.0004568283037505069,
+        "unmatched_residual": 0.018678483983852568,
+        "raw_overlap": 0.01936066395025797,
+        "removed": 0.0002253516626548911,
+        "n_gt": 1543,
+        "n_matched": 883,
+        "n_unmatched": 660
+      },
+      "footnote": {
+        "old_HT": 0.02028441278325765,
+        "new_HT_crop": 0.02028441278325765,
+        "delta": 0.0,
+        "matched_residual": 0.0,
+        "unmatched_residual": 0.02028441278325765,
+        "raw_overlap": 0.02028441278325765,
+        "removed": 0.0,
+        "n_gt": 38,
+        "n_matched": 10,
+        "n_unmatched": 28
+      }
+    },
+    {
+      "id": "azure_di",
+      "name": "Azure DI prebuilt-layout",
+      "group": "off_the_shelf",
+      "operating_conf": 0.0,
+      "header_footer": {
+        "old_HT": 0.18104105993059444,
+        "new_HT_crop": 0.1811962934623119,
+        "delta": 0.00015523353171745247,
+        "matched_residual": 0.0005314931069076357,
+        "unmatched_residual": 0.18066480035540428,
+        "raw_overlap": 0.18597751991230513,
+        "removed": 0.004781226449993261,
+        "n_gt": 1543,
+        "n_matched": 883,
+        "n_unmatched": 660
+      },
+      "footnote": {
+        "old_HT": 0.1840668458774111,
+        "new_HT_crop": 0.177853100274368,
+        "delta": -0.006213745603043108,
+        "matched_residual": 0.0,
+        "unmatched_residual": 0.177853100274368,
+        "raw_overlap": 0.1840668458774111,
+        "removed": 0.006213745603043107,
+        "n_gt": 38,
+        "n_matched": 13,
+        "n_unmatched": 25
+      }
+    },
+    {
+      "id": "aws_textract",
+      "name": "AWS Textract Layout",
+      "group": "off_the_shelf",
+      "operating_conf": 0.0,
+      "header_footer": {
+        "old_HT": 0.15962832285260564,
+        "new_HT_crop": 0.16044322126008623,
+        "delta": 0.0008148984074805854,
+        "matched_residual": 0.0030458532497374463,
+        "unmatched_residual": 0.15739736801034881,
+        "raw_overlap": 0.16824576062443414,
+        "removed": 0.007802539364347928,
+        "n_gt": 1543,
+        "n_matched": 281,
+        "n_unmatched": 1262
+      },
+      "footnote": {
+        "old_HT": 0.6442415924907959,
+        "new_HT_crop": 0.6423325239334529,
+        "delta": -0.0019090685573430743,
+        "matched_residual": 0.0,
+        "unmatched_residual": 0.6423325239334529,
+        "raw_overlap": 0.6442415924907959,
+        "removed": 0.001909068557343024,
+        "n_gt": 38,
+        "n_matched": 0,
+        "n_unmatched": 38
+      }
+    },
+    {
+      "id": "google_docai",
+      "name": "Google DocAI Layout Parser",
+      "group": "off_the_shelf",
+      "operating_conf": 0.0,
+      "header_footer": {
+        "old_HT": 0.4379224211491473,
+        "new_HT_crop": 0.41232604166769904,
+        "delta": -0.025596379481448273,
+        "matched_residual": 0.0016188323996648405,
+        "unmatched_residual": 0.41070720926803433,
+        "raw_overlap": 0.4429213796140276,
+        "removed": 0.030595337946328335,
+        "n_gt": 1543,
+        "n_matched": 155,
+        "n_unmatched": 1388
+      },
+      "footnote": {
+        "old_HT": 0.9294632706292296,
+        "new_HT_crop": 0.9281462758016182,
+        "delta": -0.001316994827611384,
+        "matched_residual": 0.0,
+        "unmatched_residual": 0.9281462758016182,
+        "raw_overlap": 0.9294632706292296,
+        "removed": 0.001316994827611353,
+        "n_gt": 38,
+        "n_matched": 0,
+        "n_unmatched": 38
+      }
+    }
+  ]
+}

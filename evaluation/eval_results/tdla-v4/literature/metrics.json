@@ -3,7 +3,7 @@
     "n_images": 833,
     "gt_dir": "/home/eroux/tmp/dataset_tdlav4_tam2col/labels/test",
     "img_dir": "/home/eroux/tmp/dataset_tdlav4_tam2col/images/test",
-    "wall_s": 350.36871910095215,
+    "wall_s": 506.24641275405884,
     "dataset_tag": "v4",
     "cotescore": "0.2.0"
   },
@@ -159,6 +159,38 @@
           "area_E_inter_D_px": 438592.27962891286
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.008911030065772917,
+          "matched_residual": 0.0006888160630658972,
+          "unmatched_residual": 0.008222214002707017,
+          "raw_overlap": 0.009855097646291803,
+          "removed": 0.0009440675805188893,
+          "n_gt": 1543,
+          "n_matched": 1442,
+          "n_unmatched": 101,
+          "n_pages_no_ta": 4,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 314675.2503789582,
+          "num_raw_px": 348013.11368788086,
+          "num_removed_px": 33337.86330892279
+        },
+        "footnote": {
+          "HT": 0.042789126500217226,
+          "matched_residual": 0.005986124788716682,
+          "unmatched_residual": 0.03680300171150055,
+          "raw_overlap": 0.09198692764436932,
+          "removed": 0.049197801144152085,
+          "n_gt": 38,
+          "n_matched": 37,
+          "n_unmatched": 1,
+          "n_pages_no_ta": 4,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 340080.5618268302,
+          "num_raw_px": 731096.1590642026,
+          "num_removed_px": 391015.5972373723
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -294,7 +326,7 @@
         "ta_trespass_peripheral": 0.001179463587979203,
         "n_pages": 829
       },
-      "wall_s": 44.09
+      "wall_s": 40.88
     },
     {
       "id": "rfdetr_tdlav4",
@@ -441,6 +473,38 @@
           "area_E_inter_D_px": 77281.85838671966
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.021026585594721113,
+          "matched_residual": 0.001018149046913832,
+          "unmatched_residual": 0.02000843654780728,
+          "raw_overlap": 0.022132004115364555,
+          "removed": 0.0011054185206434415,
+          "n_gt": 1543,
+          "n_matched": 1454,
+          "n_unmatched": 89,
+          "n_pages_no_ta": 4,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 742511.9248612435,
+          "num_raw_px": 781547.574745659,
+          "num_removed_px": 39035.6498844156
+        },
+        "footnote": {
+          "HT": 0.16853483527672447,
+          "matched_residual": 0.0,
+          "unmatched_residual": 0.16853483527672447,
+          "raw_overlap": 0.22556423282343865,
+          "removed": 0.057029397546714176,
+          "n_gt": 38,
+          "n_matched": 33,
+          "n_unmatched": 5,
+          "n_pages_no_ta": 4,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 1339485.6627421402,
+          "num_raw_px": 1792745.4309272596,
+          "num_removed_px": 453259.76818511944
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -576,7 +640,7 @@
         "ta_trespass_peripheral": 0.0032573628502658796,
         "n_pages": 829
       },
-      "wall_s": 46.34
+      "wall_s": 48.06
     },
     {
       "id": "docling_heron_tdlav4",
@@ -723,6 +787,38 @@
           "area_E_inter_D_px": 0.0
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.0025087084660040406,
+          "matched_residual": 0.0006297464204102095,
+          "unmatched_residual": 0.0018789620455938317,
+          "raw_overlap": 0.005064731852489044,
+          "removed": 0.0025560233864850026,
+          "n_gt": 1543,
+          "n_matched": 1468,
+          "n_unmatched": 75,
+          "n_pages_no_ta": 4,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 88590.03491636865,
+          "num_raw_px": 178850.9018621561,
+          "num_removed_px": 90260.86694578743
+        },
+        "footnote": {
+          "HT": 0.07357926734537572,
+          "matched_residual": 0.0,
+          "unmatched_residual": 0.07357926734537572,
+          "raw_overlap": 0.07357926734537572,
+          "removed": 0.0,
+          "n_gt": 38,
+          "n_matched": 35,
+          "n_unmatched": 3,
+          "n_pages_no_ta": 4,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 584795.265159126,
+          "num_raw_px": 584795.265159126,
+          "num_removed_px": 0.0
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -858,7 +954,7 @@
         "ta_trespass_peripheral": 0.001718402194346491,
         "n_pages": 829
       },
-      "wall_s": 42.31
+      "wall_s": 43.04
     },
     {
       "id": "doclayout_tdlav4",
@@ -1005,6 +1101,38 @@
           "area_E_inter_D_px": 0.0
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.004026701368432186,
+          "matched_residual": 0.0004669088980609593,
+          "unmatched_residual": 0.0035597924703712268,
+          "raw_overlap": 0.00540846282944311,
+          "removed": 0.0013817614610109241,
+          "n_gt": 1543,
+          "n_matched": 1440,
+          "n_unmatched": 103,
+          "n_pages_no_ta": 26,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 142194.92605906574,
+          "num_raw_px": 190989.07561285177,
+          "num_removed_px": 48794.14955378604
+        },
+        "footnote": {
+          "HT": 0.10607945422280135,
+          "matched_residual": 0.0,
+          "unmatched_residual": 0.10607945422280135,
+          "raw_overlap": 0.10607945422280135,
+          "removed": 0.0,
+          "n_gt": 38,
+          "n_matched": 30,
+          "n_unmatched": 8,
+          "n_pages_no_ta": 26,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 843101.1179952612,
+          "num_raw_px": 843101.1179952612,
+          "num_removed_px": 0.0
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -1140,7 +1268,7 @@
         "ta_trespass_peripheral": 0.0025573471605626454,
         "n_pages": 829
       },
-      "wall_s": 42.75
+      "wall_s": 40.9
     },
     {
       "id": "pp_doclayout_tdlav4",
@@ -1287,6 +1415,38 @@
           "area_E_inter_D_px": 0.0
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.0038867949733334263,
+          "matched_residual": 0.001072027989954892,
+          "unmatched_residual": 0.0028147669833785346,
+          "raw_overlap": 0.004831344947452705,
+          "removed": 0.0009445499741192783,
+          "n_gt": 1543,
+          "n_matched": 1449,
+          "n_unmatched": 94,
+          "n_pages_no_ta": 5,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 137254.4108119655,
+          "num_raw_px": 170609.308888571,
+          "num_removed_px": 33354.898076605445
+        },
+        "footnote": {
+          "HT": 0.036779759331513014,
+          "matched_residual": 0.0,
+          "unmatched_residual": 0.036779759331513014,
+          "raw_overlap": 0.036779759331513014,
+          "removed": 0.0,
+          "n_gt": 38,
+          "n_matched": 37,
+          "n_unmatched": 1,
+          "n_pages_no_ta": 5,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 292319.1530271843,
+          "num_raw_px": 292319.1530271843,
+          "num_removed_px": 0.0
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -1422,7 +1582,7 @@
         "ta_trespass_peripheral": 0.000902779204239673,
         "n_pages": 829
       },
-      "wall_s": 45.47
+      "wall_s": 46.93
     },
     {
       "id": "pp_doclayout_ots",
@@ -1569,6 +1729,38 @@
           "area_E_inter_D_px": 548347.756909772
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.18894724866447882,
+          "matched_residual": 0.0152996940612959,
+          "unmatched_residual": 0.17364755460318299,
+          "raw_overlap": 0.24715857768645846,
+          "removed": 0.05821132902197963,
+          "n_gt": 1543,
+          "n_matched": 647,
+          "n_unmatched": 896,
+          "n_pages_no_ta": 124,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 6672295.160385929,
+          "num_raw_px": 8727912.120454455,
+          "num_removed_px": 2055616.9600685253
+        },
+        "footnote": {
+          "HT": 0.28105950438783234,
+          "matched_residual": 0.003733499804583455,
+          "unmatched_residual": 0.27732600458324885,
+          "raw_overlap": 0.3463194260551593,
+          "removed": 0.06525992166732701,
+          "n_gt": 38,
+          "n_matched": 22,
+          "n_unmatched": 16,
+          "n_pages_no_ta": 124,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 2233812.2316775788,
+          "num_raw_px": 2752486.7791770897,
+          "num_removed_px": 518674.54749951087
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -1704,7 +1896,7 @@
         "ta_trespass_peripheral": 0.01072870762382623,
         "n_pages": 829
       },
-      "wall_s": 23.99
+      "wall_s": 46.43
     },
     {
       "id": "docling_heron_ots",
@@ -1851,6 +2043,38 @@
           "area_E_inter_D_px": 249818.210320703
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.09961482856884366,
+          "matched_residual": 0.029151239410160394,
+          "unmatched_residual": 0.07046358915868317,
+          "raw_overlap": 0.21122867809813728,
+          "removed": 0.11161384952929364,
+          "n_gt": 1543,
+          "n_matched": 755,
+          "n_unmatched": 788,
+          "n_pages_no_ta": 4,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 3517698.9517472787,
+          "num_raw_px": 7459119.392162261,
+          "num_removed_px": 3941420.4404149824
+        },
+        "footnote": {
+          "HT": 0.05562276071710034,
+          "matched_residual": 9.355333179654036e-05,
+          "unmatched_residual": 0.05552920738530379,
+          "raw_overlap": 0.12155183083079882,
+          "removed": 0.06592907011369849,
+          "n_gt": 38,
+          "n_matched": 20,
+          "n_unmatched": 18,
+          "n_pages_no_ta": 4,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 442080.06244144274,
+          "num_raw_px": 966072.8858255153,
+          "num_removed_px": 523992.8233840725
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -1986,7 +2210,7 @@
         "ta_trespass_peripheral": 0.006104424200343591,
         "n_pages": 829
       },
-      "wall_s": 18.46
+      "wall_s": 42.76
     },
     {
       "id": "doclayout_docstruct_ots",
@@ -2133,6 +2357,38 @@
           "area_E_inter_D_px": 0.0
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.1121908196833568,
+          "matched_residual": 0.02652664732162786,
+          "unmatched_residual": 0.085664172361729,
+          "raw_overlap": 0.2615399648711692,
+          "removed": 0.1493491451878123,
+          "n_gt": 1543,
+          "n_matched": 1034,
+          "n_unmatched": 509,
+          "n_pages_no_ta": 85,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 3961794.990422211,
+          "num_raw_px": 9235762.119808381,
+          "num_removed_px": 5273967.129386167
+        },
+        "footnote": {
+          "HT": 0.1655184847382191,
+          "matched_residual": 0.0,
+          "unmatched_residual": 0.1655184847382191,
+          "raw_overlap": 0.24105393944105832,
+          "removed": 0.07553545470283922,
+          "n_gt": 38,
+          "n_matched": 0,
+          "n_unmatched": 38,
+          "n_pages_no_ta": 85,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 1315512.231412656,
+          "num_raw_px": 1915854.9346706027,
+          "num_removed_px": 600342.7032579465
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -2268,7 +2524,7 @@
         "ta_trespass_peripheral": 0.008460998152731644,
         "n_pages": 829
       },
-      "wall_s": 16.18
+      "wall_s": 34.43
     },
     {
       "id": "surya_vlm",
@@ -2415,6 +2671,38 @@
           "area_E_inter_D_px": 0.0
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.021028992612059032,
+          "matched_residual": 0.0006540850135883181,
+          "unmatched_residual": 0.02037490759847071,
+          "raw_overlap": 0.021621557041502433,
+          "removed": 0.000592564429443408,
+          "n_gt": 1543,
+          "n_matched": 1326,
+          "n_unmatched": 217,
+          "n_pages_no_ta": 4,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 742596.9238768326,
+          "num_raw_px": 763522.15461048,
+          "num_removed_px": 20925.23073364756
+        },
+        "footnote": {
+          "HT": 0.1345140676392942,
+          "matched_residual": 0.0,
+          "unmatched_residual": 0.1345140676392942,
+          "raw_overlap": 0.1345140676392942,
+          "removed": 0.0,
+          "n_gt": 38,
+          "n_matched": 23,
+          "n_unmatched": 15,
+          "n_pages_no_ta": 4,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 1069094.4975507078,
+          "num_raw_px": 1069094.4975507078,
+          "num_removed_px": 0.0
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -2550,7 +2838,7 @@
         "ta_trespass_peripheral": 0.0032907436730448244,
         "n_pages": 829
       },
-      "wall_s": 16.93
+      "wall_s": 36.35
     },
     {
       "id": "chandra",
@@ -2697,6 +2985,38 @@
           "area_E_inter_D_px": 0.0
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.01913531228760308,
+          "matched_residual": 0.0004568283037505069,
+          "unmatched_residual": 0.018678483983852568,
+          "raw_overlap": 0.01936066395025797,
+          "removed": 0.0002253516626548911,
+          "n_gt": 1543,
+          "n_matched": 883,
+          "n_unmatched": 660,
+          "n_pages_no_ta": 139,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 675725.3808747837,
+          "num_raw_px": 683683.2252929746,
+          "num_removed_px": 7957.844418190909
+        },
+        "footnote": {
+          "HT": 0.02028441278325765,
+          "matched_residual": 0.0,
+          "unmatched_residual": 0.02028441278325765,
+          "raw_overlap": 0.02028441278325765,
+          "removed": 0.0,
+          "n_gt": 38,
+          "n_matched": 10,
+          "n_unmatched": 28,
+          "n_pages_no_ta": 139,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 161216.99739821933,
+          "num_raw_px": 161216.99739821933,
+          "num_removed_px": 0.0
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -2832,7 +3152,7 @@
         "ta_trespass_peripheral": 0.0012508604180767485,
         "n_pages": 829
       },
-      "wall_s": 12.09
+      "wall_s": 28.31
     },
     {
       "id": "azure_di",
@@ -2979,6 +3299,38 @@
           "area_E_inter_D_px": 0.0
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.1811962934623119,
+          "matched_residual": 0.0005314931069076357,
+          "unmatched_residual": 0.18066480035540428,
+          "raw_overlap": 0.18597751991230513,
+          "removed": 0.004781226449993261,
+          "n_gt": 1543,
+          "n_matched": 883,
+          "n_unmatched": 660,
+          "n_pages_no_ta": 5,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 6398585.639610521,
+          "num_raw_px": 6567425.113741463,
+          "num_removed_px": 168839.47413094356
+        },
+        "footnote": {
+          "HT": 0.177853100274368,
+          "matched_residual": 0.0,
+          "unmatched_residual": 0.177853100274368,
+          "raw_overlap": 0.1840668458774111,
+          "removed": 0.006213745603043107,
+          "n_gt": 38,
+          "n_matched": 13,
+          "n_unmatched": 25,
+          "n_pages_no_ta": 5,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 1413545.6180355442,
+          "num_raw_px": 1462931.3912113805,
+          "num_removed_px": 49385.773175836344
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -3114,7 +3466,7 @@
         "ta_trespass_peripheral": 0.006948080693004723,
         "n_pages": 829
       },
-      "wall_s": 16.2
+      "wall_s": 33.53
     },
     {
       "id": "aws_textract",
@@ -3261,6 +3613,38 @@
           "area_E_inter_D_px": 0.0
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.16044322126008623,
+          "matched_residual": 0.0030458532497374463,
+          "unmatched_residual": 0.15739736801034881,
+          "raw_overlap": 0.16824576062443414,
+          "removed": 0.007802539364347928,
+          "n_gt": 1543,
+          "n_matched": 281,
+          "n_unmatched": 1262,
+          "n_pages_no_ta": 19,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 5665732.294580141,
+          "num_raw_px": 5941263.4071390005,
+          "num_removed_px": 275531.1125588598
+        },
+        "footnote": {
+          "HT": 0.6423325239334529,
+          "matched_residual": 0.0,
+          "unmatched_residual": 0.6423325239334529,
+          "raw_overlap": 0.6442415924907959,
+          "removed": 0.001909068557343024,
+          "n_gt": 38,
+          "n_matched": 0,
+          "n_unmatched": 38,
+          "n_pages_no_ta": 19,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 5105147.580374784,
+          "num_raw_px": 5120320.526416201,
+          "num_removed_px": 15172.946041416759
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -3396,7 +3780,7 @@
         "ta_trespass_peripheral": 0.010390641992868934,
         "n_pages": 829
       },
-      "wall_s": 12.67
+      "wall_s": 32.13
     },
     {
       "id": "google_docai",
@@ -3543,6 +3927,38 @@
           "area_E_inter_D_px": 0.0
         }
       },
+      "hidden_trespass_crop": {
+        "header-footer": {
+          "HT": 0.41232604166769904,
+          "matched_residual": 0.0016188323996648405,
+          "unmatched_residual": 0.41070720926803433,
+          "raw_overlap": 0.4429213796140276,
+          "removed": 0.030595337946328335,
+          "n_gt": 1543,
+          "n_matched": 155,
+          "n_unmatched": 1388,
+          "n_pages_no_ta": 4,
+          "area_G_px": 35313005.12469589,
+          "num_residual_px": 14560471.622457027,
+          "num_raw_px": 15640884.94814753,
+          "num_removed_px": 1080413.325690495
+        },
+        "footnote": {
+          "HT": 0.9281462758016182,
+          "matched_residual": 0.0,
+          "unmatched_residual": 0.9281462758016182,
+          "raw_overlap": 0.9294632706292296,
+          "removed": 0.001316994827611353,
+          "n_gt": 38,
+          "n_matched": 0,
+          "n_unmatched": 38,
+          "n_pages_no_ta": 4,
+          "area_G_px": 7947826.694361329,
+          "num_residual_px": 7376745.747088154,
+          "num_raw_px": 7387212.99373538,
+          "num_removed_px": 10467.246647225309
+        }
+      },
       "contamination": {
         "header-footer": {
           "gt": 1543,
@@ -3678,7 +4094,7 @@
         "ta_trespass_peripheral": 0.015021073791703234,
         "n_pages": 829
       },
-      "wall_s": 11.8
+      "wall_s": 30.29
     }
   ]
 }
